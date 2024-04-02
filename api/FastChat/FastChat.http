@@ -1,0 +1,6 @@
+@FastChat_HostAddress = http://localhost:5253
+
+GET {{FastChat_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
