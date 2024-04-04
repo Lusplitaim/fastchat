@@ -20,7 +20,7 @@ namespace FastChat
 
             builder.Services.AddDbContext<DatabaseContext>(opts =>
             {
-                opts.UseSqlServer(builder.Configuration["DatabaseConnections:SqlServer"]);
+                opts.UseSqlServer(builder.Configuration["DatabaseConnections:SqlServer"], builder => builder.MigrationsAssembly("FastChat.Data"));
             });
 
             builder.Services.AddIdentity<AppUserEntity, AppRoleEntity>(opts =>
