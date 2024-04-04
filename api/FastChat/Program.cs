@@ -1,3 +1,4 @@
+using FastChat.Core.Services;
 using FastChat.Data;
 using FastChat.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,6 +18,8 @@ namespace FastChat
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             builder.Services.AddDbContext<DatabaseContext>(opts =>
             {

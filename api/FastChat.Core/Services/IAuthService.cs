@@ -1,8 +1,11 @@
-﻿namespace FastChat.Core.Services
+﻿using FastChat.Core.Models;
+
+namespace FastChat.Core.Services
 {
     public interface IAuthService
     {
-        void SignInAsync();
-        void SignOutAsync();
+        Task SignUpAsync(CreateUser model);
+        Task SignInAsync();
+        Task SignOutAsync();
     }
 }

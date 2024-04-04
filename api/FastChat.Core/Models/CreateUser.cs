@@ -2,7 +2,7 @@
 
 namespace FastChat.Core.Models
 {
-    public class CreateUserModel
+    public class CreateUser
     {
         [Required]
         public string UserName { get; set; }
@@ -10,6 +10,7 @@ namespace FastChat.Core.Models
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
+        [Required]
         public string FirstName { get; set; }
         public string LastName { get; set; }
     }

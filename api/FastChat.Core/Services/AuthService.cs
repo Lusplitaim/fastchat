@@ -1,15 +1,46 @@
-﻿namespace FastChat.Core.Services
+﻿using FastChat.Core.Models;
+using FastChat.Data.Entities;
+using Microsoft.AspNetCore.Identity;
+
+namespace FastChat.Core.Services
 {
     public class AuthService : IAuthService
     {
-        public void SignInAsync()
+        private UserManager<AppUserEntity> m_UserManager;
+
+        public AuthService(UserManager<AppUserEntity> userManager)
         {
-            throw new NotImplementedException();
+            m_UserManager = userManager;
         }
 
-        public void SignOutAsync()
+        public async Task SignUpAsync(CreateUser model)
         {
-            throw new NotImplementedException();
+            if (model is null) throw new ArgumentNullException(nameof(model));
+
+            AppUserEntity appUser = new()
+            {
+                UserName = model.UserName,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+            };
+
+            var result = await m_UserManager.CreateAsync(appUser, model.Password);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception("Failed to create new user");
+            }
+        }
+
+        public Task SignInAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task SignOutAsync()
+        {
+            return Task.CompletedTask;
         }
     }
 }

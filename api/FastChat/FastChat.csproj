@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FastChat.Core\FastChat.Core.csproj" />
     <ProjectReference Include="..\FastChat.Data\FastChat.Data.csproj" />
   </ItemGroup>
 
