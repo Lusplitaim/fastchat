@@ -6,9 +6,10 @@ function Chat() {
 
   function SendMessageHandler(event: React.KeyboardEvent<HTMLTextAreaElement>) {
     let message: string;
-    if (event.code === "Enter" && textareaRef.current?.value) {
+    if (event.code === "Enter" && !event.shiftKey && textareaRef.current?.value) {
+      event.preventDefault();
       message = textareaRef.current!.value;
-      textareaRef.current!.value = "";
+      textareaRef.current!.value = '';
     }
 
     setMessages(items => message ? [...items, message] : items);

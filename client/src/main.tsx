@@ -5,8 +5,8 @@ import './index.css'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Default from './components/default/Default.tsx';
 import Chat from './components/chat/Chat.tsx';
-import SignUp from './components/log/SignUp.tsx';
-import SignIn from './components/log/SignIn.tsx';
+import SignUp from './components/auth/SignUp.tsx';
+import SignIn from './components/auth/SignIn.tsx';
 
 const router = createBrowserRouter([
   {
@@ -24,11 +24,11 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/signup",
+    path: "/sign-up",
     element: <SignUp />,
   },
   {
-    path: "/signin",
+    path: "/sign-in",
     element: <SignIn />,
   },
 ]);
