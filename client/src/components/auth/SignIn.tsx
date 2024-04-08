@@ -1,19 +1,29 @@
 import { SubmitHandler, useForm } from "react-hook-form";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface SignInFormKeys {
   email: string;
   password: string;
 }
 
+axios.interceptors.request.use((config) => {
+  config.headers.Authorization = `Bearer ${localStorage.getItem("auth_token")}`;
+  return config;
+});
+
 export default function SignIn() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<SignInFormKeys>();
 
-  const onSubmit: SubmitHandler<SignInFormKeys> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<SignInFormKeys> = async (data) => {
+    const token = (await axios.postForm<string>("https://localhost:7185/api/auth/sign-in", data)).data;
+    localStorage.setItem("auth_token", token);
+    navigate("/");
   };
 
   const inputClassName =

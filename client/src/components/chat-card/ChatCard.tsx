@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
+import { Chat } from "../../models/chat";
 
 const chatId = 1;
 
-export default function ChatCard() {
+export default function ChatCard({ chat }: { chat: Chat }) {
   return (
     <Link className="flex p-4 hover:bg-slate-50" to={`chats/${chatId}`}>
       <img
@@ -11,7 +12,7 @@ export default function ChatCard() {
         alt="avatar"
       />
       <div className="flex flex-col items-start">
-        <p className="font-medium truncate">Some title</p>
+        <p className="font-medium truncate">{chat.name}</p>
         <p className="truncate">Ipsum no lora bas epicrum</p>
       </div>
     </Link>

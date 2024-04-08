@@ -1,3 +1,4 @@
+using FastChat.Core.Repositories;
 using FastChat.Core.Services;
 using FastChat.Data;
 using FastChat.Data.Entities;
@@ -22,7 +23,11 @@ namespace FastChat
             builder.Services.AddSwaggerGen();
             builder.Services.AddRouting(opts => opts.LowercaseUrls = true);
 
+            builder.Services.AddCors();
+
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IChatsService, ChatsService>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddDbContext<DatabaseContext>(opts =>
             {
@@ -44,13 +49,6 @@ namespace FastChat
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateLifetime = true,
-                        /*ValidateAudience = true,
-                        ValidAudience = AuthOptions.AUDIENCE,
-                        ValidateIssuer = true,
-                        ValidIssuer = AuthOptions.ISSUER,
-                        ValidateLifetime = true,
-                        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                        ValidateIssuerSigningKey = true,*/
                     };
                 });
 
@@ -66,6 +64,10 @@ namespace FastChat
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors(builder => builder.WithOrigins("https://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod());
 
             app.UseAuthentication();
             app.UseAuthorization();
