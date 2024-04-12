@@ -15,11 +15,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Default />
+        element: <Default />,
       },
       {
-        path: "chats/:chatId",
-        element: <Chat />
+        path: "chats/:linkName",
+        element: <Chat />,
       },
     ],
   },

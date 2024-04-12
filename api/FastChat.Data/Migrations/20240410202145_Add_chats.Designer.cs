@@ -4,6 +4,7 @@ using FastChat.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FastChat.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240410202145_Add_chats")]
+    partial class Add_chats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,11 +70,6 @@ namespace FastChat.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 4, 11, 15, 49, 5, 750, DateTimeKind.Utc).AddTicks(8085));
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -85,9 +83,6 @@ namespace FastChat.Data.Migrations
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -150,7 +145,7 @@ namespace FastChat.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 4, 11, 15, 49, 5, 751, DateTimeKind.Utc).AddTicks(9921));
+                        .HasDefaultValue(new DateTime(2024, 4, 10, 20, 21, 45, 118, DateTimeKind.Utc).AddTicks(639));
 
                     b.Property<string>("LinkName")
                         .HasColumnType("nvarchar(450)");
@@ -206,7 +201,7 @@ namespace FastChat.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 4, 11, 15, 49, 5, 751, DateTimeKind.Utc).AddTicks(7808));
+                        .HasDefaultValue(new DateTime(2024, 4, 10, 20, 21, 45, 117, DateTimeKind.Utc).AddTicks(9202));
 
                     b.HasKey("ChatId", "Id");
 

@@ -1,10 +1,11 @@
 ﻿namespace FastChat.Data.Entities
 {
-    public class ChatsUsersEntity
+    public class ChatMemberEntity
     {
-        public Guid ChatId { get; set; }
+        public long ChatId { get; set; }
         public int UserId { get; set; }
 
         public AppUserEntity User { get; set; }
+        public ChatEntity Chat { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FastChat.Core.Models;
+using FastChat.Core.Repositories;
 using FastChat.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 
@@ -8,11 +9,13 @@ namespace FastChat.Core.Services
     {
         private UserManager<AppUserEntity> m_UserManager;
         private SignInManager<AppUserEntity> m_SignInManager;
+        private readonly IUnitOfWork m_UnitOfWork;
 
-        public AuthService(UserManager<AppUserEntity> userManager, SignInManager<AppUserEntity> signInManager)
+        public AuthService(UserManager<AppUserEntity> userManager, SignInManager<AppUserEntity> signInManager, IUnitOfWork uow)
         {
             m_UserManager = userManager;
             m_SignInManager = signInManager;
+            m_UnitOfWork = uow;
         }
 
         public async Task SignUpAsync(CreateUser model)
@@ -33,6 +36,14 @@ namespace FastChat.Core.Services
             {
                 throw new Exception("Failed to create new user");
             }
+
+            var userEntity = await m_UserManager.FindByNameAsync(model.UserName);
+            if (userEntity is null)
+            {
+                throw new Exception("Failed to create new user");
+            }
+
+            m_UnitOfWork.SaveChanges();
         }
 
         public async Task SignInAsync(SignUser model)

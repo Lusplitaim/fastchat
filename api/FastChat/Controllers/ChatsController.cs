@@ -12,11 +12,11 @@ namespace FastChat.Controllers
             m_ChatsService = chatsService;
         }
 
-        [HttpGet("{userName}")]
-        public IActionResult GetChats(string userName)
+        [HttpGet("search/{userName}")]
+        public IActionResult FindChats(string userName)
         {
-            var userNames = m_ChatsService.GetChats(userName);
-            return Ok(userNames);
+            var chats = m_ChatsService.FindChats(userName);
+            return Ok(chats);
         }
     }
 }
