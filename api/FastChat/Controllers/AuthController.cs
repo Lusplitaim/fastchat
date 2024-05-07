@@ -1,4 +1,5 @@
 ﻿using FastChat.Core.Models;
+using FastChat.Core.Repositories;
 using FastChat.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace FastChat.Controllers
     public class AuthController : BaseController
     {
         private readonly IAuthService m_AuthService;
+        private readonly IUnitOfWork m_UnitOfWork;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUnitOfWork uow)
         {
             m_AuthService = authService;
+            m_UnitOfWork = uow;
         }
 
         [HttpGet()]
@@ -29,7 +32,13 @@ namespace FastChat.Controllers
         {
             await m_AuthService.SignUpAsync(model);
 
-            return Ok(CreateAuthToken(model.Email));
+            var appUser = m_UnitOfWork.UserRepository.GetByEmail(model.Email);
+            if (appUser is null)
+            {
+                throw new Exception("User not found");
+            }
+
+            return Ok(new { Token = CreateAuthToken(model.Email, appUser.Id), User = AppUser.FromEntity(appUser) });
         }
 
         [HttpPost("sign-in")]
@@ -37,12 +46,18 @@ namespace FastChat.Controllers
         {
             await m_AuthService.SignInAsync(model);
 
-            return Ok(CreateAuthToken(model.Email));
+            var appUser = m_UnitOfWork.UserRepository.GetByEmail(model.Email);
+            if (appUser is null)
+            {
+                throw new Exception("User not found");
+            }
+
+            return Ok(new { Token = CreateAuthToken(model.Email, appUser.Id), User = AppUser.FromEntity(appUser) });
         }
 
-        private string CreateAuthToken(string email)
+        private string CreateAuthToken(string email, int id)
         {
-            var claims = new List<Claim> { new Claim(ClaimTypes.Email, email) };
+            var claims = new List<Claim> { new Claim(ClaimTypes.Email, email), new Claim(ClaimTypes.NameIdentifier, id.ToString()) };
             var jwt = new JwtSecurityToken(
                     issuer: AuthOptions.ISSUER,
                     audience: AuthOptions.AUDIENCE,

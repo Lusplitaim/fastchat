@@ -4,8 +4,8 @@ namespace FastChat.Core.Repositories
 {
     public interface IChatRepository
     {
-        List<ChatEntity> Get(int userId);
-        ChatEntity? Get(string linkName);
+        List<ChatEntity> GetUserChats(int userId);
+        ChatEntity? Get(long chatId);
         ChatEntity? GetDialog(int senderId, int recipientId);
         Task<ChatEntity> CreateDialogAsync(int senderId, int recipientId);
     }

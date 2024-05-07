@@ -8,6 +8,7 @@ namespace FastChat.Core.Repositories
         public IChatRepository ChatRepository => new ChatRepository(m_DatabaseContext);
         public IChatMessageRepository ChatMessageRepository => new ChatMessageRepository(m_DatabaseContext);
         public IChannelRepository ChannelRepository => new ChannelRepository(m_DatabaseContext);
+        public IChatMemberRepository ChatMemberRepository => new ChatMemberRepository(m_DatabaseContext);
 
         private DatabaseContext m_DatabaseContext;
         public UnitOfWork(DatabaseContext context)

@@ -18,5 +18,12 @@ namespace FastChat.Controllers
             var chats = m_ChatsService.FindChats(userName);
             return Ok(chats);
         }
+
+        [HttpGet("{chatId}")]
+        public IActionResult FindChats(long chatId)
+        {
+            var chat = m_ChatsService.GetChat(chatId);
+            return Ok(chat);
+        }
     }
 }

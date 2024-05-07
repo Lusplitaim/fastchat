@@ -1,6 +1,4 @@
-﻿using FastChat.Data.Entities;
-using FastChat.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using FastChat.Core.Services;
 
 namespace FastChat.Controllers
@@ -25,6 +23,12 @@ namespace FastChat.Controllers
         public IActionResult GetUserChats(int userId)
         {
             return Ok(m_ChatsService.GetChats(userId));
+        }
+
+        [HttpGet("{userId}/chat")]
+        public IActionResult GetChatWithUser(int userId)
+        {
+            return Ok(m_ChatsService.GetChatWithUser(userId));
         }
     }
 }

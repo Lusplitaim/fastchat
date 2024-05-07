@@ -31,8 +31,9 @@ namespace FastChat.Data
             builder.Entity<ChatMessageEntity>(b =>
             {
                 b.HasKey(e => new { e.ChatId, e.Id });
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
                 b.HasOne(e => e.Author).WithMany().HasForeignKey(e => e.AuthorId);
-                b.HasOne(e => e.Chat).WithMany().HasForeignKey(e => e.ChatId);
+                b.HasOne(e => e.Chat).WithMany(e => e.Messages).HasForeignKey(e => e.ChatId);
                 b.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
             });
 

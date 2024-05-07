@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FastChat.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240409183017_Add_chat_messages")]
-    partial class Add_chat_messages
+    [Migration("20240424210951_InitMigration")]
+    partial class InitMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,6 +70,11 @@ namespace FastChat.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -79,10 +84,15 @@ namespace FastChat.Data.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -128,35 +138,86 @@ namespace FastChat.Data.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("FastChat.Data.Entities.ChatMessageEntity", b =>
+            modelBuilder.Entity("FastChat.Data.Entities.ChannelEntity", b =>
                 {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int?>("AuthorId")
+                    b.Property<bool>("IsPublic")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Content")
+                    b.Property<string>("SearchName")
                         .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Settings")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.HasKey("Id");
 
-                    b.HasKey("ChatId", "Id");
+                    b.HasIndex("ChatId")
+                        .IsUnique();
 
-                    b.HasIndex("AuthorId");
+                    b.HasIndex("OwnerId");
 
-                    b.ToTable("ChatMessages");
+                    b.HasIndex("SearchName")
+                        .IsUnique();
+
+                    b.ToTable("Channels");
                 });
 
-            modelBuilder.Entity("FastChat.Data.Entities.ChatsUsersEntity", b =>
+            modelBuilder.Entity("FastChat.Data.Entities.ChatEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("Type")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Chats");
+                });
+
+            modelBuilder.Entity("FastChat.Data.Entities.ChatMemberEntity", b =>
                 {
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
@@ -168,7 +229,37 @@ namespace FastChat.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ChatsUsersEntity");
+                    b.ToTable("ChatMembers");
+                });
+
+            modelBuilder.Entity("FastChat.Data.Entities.ChatMessageEntity", b =>
+                {
+                    b.Property<long>("ChatId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("ChatId", "Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -274,24 +365,59 @@ namespace FastChat.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FastChat.Data.Entities.ChatMessageEntity", b =>
+            modelBuilder.Entity("FastChat.Data.Entities.ChannelEntity", b =>
                 {
-                    b.HasOne("FastChat.Data.Entities.AppUserEntity", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId");
+                    b.HasOne("FastChat.Data.Entities.ChatEntity", "Chat")
+                        .WithOne()
+                        .HasForeignKey("FastChat.Data.Entities.ChannelEntity", "ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Author");
+                    b.HasOne("FastChat.Data.Entities.AppUserEntity", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("FastChat.Data.Entities.ChatsUsersEntity", b =>
+            modelBuilder.Entity("FastChat.Data.Entities.ChatMemberEntity", b =>
                 {
+                    b.HasOne("FastChat.Data.Entities.ChatEntity", "Chat")
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FastChat.Data.Entities.AppUserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Chat");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FastChat.Data.Entities.ChatMessageEntity", b =>
+                {
+                    b.HasOne("FastChat.Data.Entities.AppUserEntity", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
+
+                    b.HasOne("FastChat.Data.Entities.ChatEntity", "Chat")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Chat");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -343,6 +469,11 @@ namespace FastChat.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FastChat.Data.Entities.ChatEntity", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

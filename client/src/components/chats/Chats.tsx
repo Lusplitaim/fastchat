@@ -3,33 +3,57 @@ import ChatCard from "../chat-card/ChatCard";
 import Spinner from "../spinner/Spinner";
 import chatsApi from "../../api/chats.api";
 import debounce from "../../utils/debounce";
-import { Chat } from "../../models/searchChat";
+import { Chat } from "../../models/chat";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import {
+  selectChats,
+  setChats,
+} from "../../redux/features/userChats/userChatsSlice";
+import { selectCurrentUser } from "../../redux/features/currentUser/currentUserSlice";
+import { LocalStorageKeys } from "../../storage/localStorageKeys";
+import { ChatType } from "../../models/chatType";
 
 export default function Chats() {
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [chats, setChats] = useState<Chat[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
+  const currentUser =
+    useAppSelector(selectCurrentUser) ??
+    JSON.parse(localStorage.getItem(LocalStorageKeys.authUser) ?? "");
+  const userChats = useAppSelector(selectChats);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const response = chatsApi.get(7);
-    response.then((data) => {
-      setChats(data);
+    const getChats = async () => {
+      const chats = await chatsApi.get(currentUser.id);
+
+      dispatch(setChats(chats));
       setLoaded(true);
-    });
+    };
+
+    getChats();
   }, []);
 
   function findChats() {
+    if (!inputRef.current!.value) {
+      setFilteredChats([]);
+      return;
+    }
+
     setLoaded(true);
     chatsApi.find(inputRef.current!.value).then((data) => {
-      const chats: Chat[] = [];
-      for (const chat of data) {
-        chats.push(chat);
-      }
-      setChats(chats);
+      setFilteredChats(data);
     });
   }
 
-  const chatItems = chats.map((c) => <ChatCard chat={c} key={c.linkName} />);
+  const chatItems = (filteredChats.length ? filteredChats : userChats).map(
+    (c) => {
+      const userOrChannelId = c.type === ChatType.Channel || c.type === ChatType.Group
+        ? -c.channel!.id
+        : c.recipient!.id;
+      return <ChatCard chat={c} key={userOrChannelId} />;
+    }
+  );
 
   if (loaded) {
     return (
@@ -43,9 +67,7 @@ export default function Chats() {
             ref={inputRef}
           />
         </div>
-        <div className="flex flex-col overflow-y-auto">
-          {chatItems}
-        </div>
+        <div className="flex flex-col overflow-y-auto">{chatItems}</div>
       </div>
     );
   } else {

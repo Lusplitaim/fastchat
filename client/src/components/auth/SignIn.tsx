@@ -1,6 +1,10 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AppUser } from "../../models/appUser";
+import { useAppDispatch } from "../../redux/hooks";
+import { setCurrentUser } from "../../redux/features/currentUser/currentUserSlice";
+import { LocalStorageKeys } from "../../storage/localStorageKeys";
 
 interface SignInFormKeys {
   email: string;
@@ -8,7 +12,7 @@ interface SignInFormKeys {
 }
 
 axios.interceptors.request.use((config) => {
-  config.headers.Authorization = `Bearer ${localStorage.getItem("auth_token")}`;
+  config.headers.Authorization = `Bearer ${localStorage.getItem(LocalStorageKeys.authToken)}`;
   return config;
 });
 
@@ -19,10 +23,13 @@ export default function SignIn() {
     handleSubmit,
     formState: { errors },
   } = useForm<SignInFormKeys>();
+  const dispatch = useAppDispatch();
 
   const onSubmit: SubmitHandler<SignInFormKeys> = async (data) => {
-    const token = (await axios.postForm<string>("https://localhost:7185/api/auth/sign-in", data)).data;
-    localStorage.setItem("auth_token", token);
+    const authData = (await axios.postForm<{ token: string, user: AppUser }>("https://localhost:7185/api/auth/sign-in", data)).data;
+    localStorage.setItem(LocalStorageKeys.authToken, authData.token);
+    localStorage.setItem(LocalStorageKeys.authUser, JSON.stringify(authData.user));
+    dispatch(setCurrentUser(authData.user));
     navigate("/");
   };
 

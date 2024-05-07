@@ -26,15 +26,15 @@ namespace FastChat.Core.Services
             return user;
         }
 
-        public int? GetAuthUserId()
+        public int GetAuthUserId()
         {
-            string? id = m_HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            return id is null ? default : Convert.ToInt32(id);
+            string id = m_HttpContextAccessor.HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            return Convert.ToInt32(id);
         }
 
-        public string? GetAuthUserName()
+        public string GetAuthUserName()
         {
-            return m_HttpContextAccessor.HttpContext.User.Identity?.Name;
+            return m_HttpContextAccessor.HttpContext.User.Identity!.Name!;
         }
     }
 }

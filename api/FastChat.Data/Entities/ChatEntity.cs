@@ -8,5 +8,6 @@ namespace FastChat.Data.Entities
         public ChatType Type { get; set; }
         public DateTime CreatedAt { get; set; }
         public ICollection<AppUserEntity> Members { get; set;} = [];
+        public ICollection<ChatMessageEntity> Messages { get; set;} = [];
     }
 }

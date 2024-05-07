@@ -5,6 +5,7 @@ using FastChat.Data;
 using FastChat.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -47,7 +48,11 @@ namespace FastChat
                 opts.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<DatabaseContext>();
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(opts =>
+            {
+                opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddJwtBearer(opts =>
                 {
                     opts.TokenValidationParameters = new()
@@ -57,6 +62,22 @@ namespace FastChat
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateLifetime = true,
+                    };
+
+                    opts.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                (path.StartsWithSegments("/hub/chats")))
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
                     };
                 });
 

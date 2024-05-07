@@ -16,7 +16,7 @@ namespace FastChat.Core.Repositories
         {
             return m_DatabaseContext.Users
                 .AsNoTracking()
-                .Where(u => string.Join(' ', u.FirstName, u.LastName).ToLower().Contains(keyword))
+                .Where(u => u.FirstName.ToLower().Contains(keyword) || u.LastName != null && u.LastName.ToLower().Contains(keyword))
                 .ToList();
         }
 
@@ -28,6 +28,19 @@ namespace FastChat.Core.Repositories
         public AppUserEntity? Get(int id)
         {
             return m_DatabaseContext.Users.SingleOrDefault(u => u.Id == id);
+        }
+
+        public List<AppUserEntity> Get(List<int> ids)
+        {
+            return m_DatabaseContext.Users
+                .AsNoTracking()
+                .Where(u => ids.Contains(u.Id))
+                .ToList();
+        }
+
+        public AppUserEntity? GetByEmail(string email)
+        {
+            return m_DatabaseContext.Users.SingleOrDefault(u => u.Email == email);
         }
     }
 }
