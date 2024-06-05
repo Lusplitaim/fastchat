@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FastChat.Core.Services;
+using FastChat.Core.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FastChat.Controllers
 {
@@ -19,8 +21,15 @@ namespace FastChat.Controllers
             return Ok(m_UserService.Get(userName));
         }
 
+        [HttpPut("{userId}")]
+        public IActionResult EditUser(int userId, EditUser model)
+        {
+            m_UserService.EditUser(userId, model);
+            return Ok();
+        }
+
         [HttpGet("{userId}/chats")]
-        public IActionResult GetUserChats(int userId)
+        public ActionResult<List<Chat>> GetUserChats(int userId)
         {
             return Ok(m_ChatsService.GetChats(userId));
         }

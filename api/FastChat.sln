@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastChat.Data", "FastChat.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastChat.Core", "FastChat.Core\FastChat.Core.csproj", "{CDFC789D-8BB3-48CC-9AE7-7228FBB27992}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastChat.UnitTests", "FastChat.UnitTests\FastChat.UnitTests.csproj", "{3D97F8BB-4069-4CC0-ABD4-42413ED6BBF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,8 +29,15 @@ Global
 		{CDFC789D-8BB3-48CC-9AE7-7228FBB27992}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDFC789D-8BB3-48CC-9AE7-7228FBB27992}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDFC789D-8BB3-48CC-9AE7-7228FBB27992}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D97F8BB-4069-4CC0-ABD4-42413ED6BBF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D97F8BB-4069-4CC0-ABD4-42413ED6BBF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D97F8BB-4069-4CC0-ABD4-42413ED6BBF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D97F8BB-4069-4CC0-ABD4-42413ED6BBF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EA951EAE-076B-479F-8F32-0895EDD6FEF7}
 	EndGlobalSection
 EndGlobal

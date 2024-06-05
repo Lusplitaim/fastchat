@@ -1,5 +1,7 @@
-﻿using FastChat.Core.Models;
+﻿using FastChat.Core.Exceptions;
+using FastChat.Core.Models;
 using FastChat.Core.Repositories;
+using FastChat.Core.Utils;
 using FastChat.Data.Entities;
 using FastChat.Data.Models;
 
@@ -8,54 +10,61 @@ namespace FastChat.Core.Services
     public class ChatsService : IChatsService
     {
         private IUnitOfWork m_UnitOfWork;
-        private IUserService m_UserService;
-        public ChatsService(IUnitOfWork uow, IUserService userService)
+        private IAuthUtils m_AuthUtils;
+        public ChatsService(IUnitOfWork uow, IAuthUtils authUtils)
         {
             m_UnitOfWork = uow;
-            m_UserService = userService;
+            m_AuthUtils = authUtils;
         }
 
         public List<Chat> GetChats(int userId)
         {
-            var user = m_UnitOfWork.UserRepository.Get(userId);
-            if (user is null)
+            try
             {
-                throw new Exception("User not found");
-            }
-
-            var chats = m_UnitOfWork.ChatRepository.GetUserChats(user.Id);
-            var channels = m_UnitOfWork.ChannelRepository.Get(chats.Select(c => c.Id).ToList());
-            var chatMembers = m_UnitOfWork.ChatMemberRepository.GetDialogRecipients(user.Id);
-
-            List<Chat> result = [];
-            foreach (var chat in chats)
-            {
-                var userChat = new Chat() { Id = chat.Id, Type = chat.Type, Messages = [..chat.Messages.Select(ChatMessage.CreateFrom)] };
-                switch (chat.Type)
+                var user = m_UnitOfWork.UserRepository.Get(userId);
+                if (user is not null)
                 {
-                    case ChatType.Personal:
-                    case ChatType.Dialog:
-                        var recipient = chatMembers.Single(cm => cm.ChatId == chat.Id).User;
-                        ChatUser chatUser = CreateChatUserFrom(recipient);
-                        userChat.Name = chatUser.Name;
-                        userChat.Recipient = chatUser;
-                        break;
-                    case ChatType.Channel:
-                    case ChatType.Group:
-                        var channel = channels.Single(c => c.ChatId == chat.Id);
-                        ChatChannel chatChannel = new()
+                    var chats = m_UnitOfWork.ChatRepository.GetUserChats(user.Id);
+                    var channels = m_UnitOfWork.ChannelRepository.Get(chats.Select(c => c.Id).ToList());
+                    var chatMembers = m_UnitOfWork.ChatMemberRepository.GetDialogRecipients(user.Id);
+
+                    List<Chat> result = [];
+                    foreach (var chat in chats)
+                    {
+                        var userChat = new Chat() { Id = chat.Id, Type = chat.Type, Messages = [.. chat.Messages.Select(ChatMessage.CreateFrom)] };
+                        switch (chat.Type)
                         {
-                            Id = channel.Id,
-                            Name = channel.Name,
-                        };
-                        userChat.Name = channel.Name;
-                        userChat.Channel = chatChannel;
-                        break;
+                            case ChatType.Personal:
+                            case ChatType.Dialog:
+                                var recipient = chatMembers.Single(cm => cm.ChatId == chat.Id).User;
+                                ChatUser chatUser = CreateChatUserFrom(recipient);
+                                userChat.Name = chatUser.Name;
+                                userChat.Recipient = chatUser;
+                                break;
+                            case ChatType.Channel:
+                            case ChatType.Group:
+                                var channel = channels.Single(c => c.ChatId == chat.Id);
+                                ChatChannel chatChannel = new()
+                                {
+                                    Id = channel.Id,
+                                    Name = channel.Name,
+                                };
+                                userChat.Name = channel.Name;
+                                userChat.Channel = chatChannel;
+                                break;
+                        }
+                        result.Add(userChat);
+                    }
+
+                    return result;
                 }
-                result.Add(userChat);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get chats", ex);
             }
 
-            return result;
+            throw new NotFoundCoreException("User not found");
         }
 
         public List<Chat> FindChats(string keyword)
@@ -99,7 +108,7 @@ namespace FastChat.Core.Services
 
             if (chatEntity.Type == ChatType.Dialog)
             {
-                var chatMemberEntity = m_UnitOfWork.ChatMemberRepository.GetDialogRecipient(chatId, m_UserService.GetAuthUserId());
+                var chatMemberEntity = m_UnitOfWork.ChatMemberRepository.GetDialogRecipient(chatId, m_AuthUtils.GetAuthUserId());
                 if (chatMemberEntity is null)
                 {
                     throw new Exception("Chat does not exist");
@@ -122,7 +131,7 @@ namespace FastChat.Core.Services
                 throw new Exception("User does not exist");
             }
 
-            var currentUserId = m_UserService.GetAuthUserId();
+            var currentUserId = m_AuthUtils.GetAuthUserId();
             var chatEntity = m_UnitOfWork.ChatRepository.GetDialog(currentUserId, recipientId);
             Chat chat = new()
             {

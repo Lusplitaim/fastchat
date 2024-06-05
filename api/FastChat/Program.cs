@@ -1,13 +1,12 @@
 using FastChat.Core.Hubs;
 using FastChat.Core.Repositories;
 using FastChat.Core.Services;
+using FastChat.Core.Utils;
 using FastChat.Data;
 using FastChat.Data.Entities;
+using FastChat.ExceptionHandlers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace FastChat
@@ -36,6 +35,7 @@ namespace FastChat
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IChatsService, ChatsService>();
+            builder.Services.AddScoped<IAuthUtils, AuthUtils>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddDbContext<DatabaseContext>(opts =>
@@ -83,6 +83,8 @@ namespace FastChat
 
             builder.Services.AddAuthorization();
 
+            builder.Services.AddSingleton<ExceptionHandler>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -91,6 +93,8 @@ namespace FastChat
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseMiddleware<ExceptionHandler>();
 
             app.UseHttpsRedirection();
 

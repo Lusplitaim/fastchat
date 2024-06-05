@@ -1,11 +1,11 @@
-﻿using FastChat.Data.Entities;
+﻿using FastChat.Core.Models;
+using FastChat.Data.Entities;
 
 namespace FastChat.Core.Services
 {
     public interface IUserService
     {
-        int GetAuthUserId();
-        string GetAuthUserName();
         AppUserEntity Get(string userName);
+        void EditUser(int userId, EditUser model);
     }
 }

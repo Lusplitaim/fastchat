@@ -1,4 +1,5 @@
-﻿using FastChat.Data;
+﻿using FastChat.Core.Models;
+using FastChat.Data;
 using FastChat.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +42,11 @@ namespace FastChat.Core.Repositories
         public AppUserEntity? GetByEmail(string email)
         {
             return m_DatabaseContext.Users.SingleOrDefault(u => u.Email == email);
+        }
+
+        public AppUserEntity Update(EditUser user)
+        {
+            throw new NotImplementedException();
         }
     }
 }
